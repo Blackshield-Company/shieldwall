@@ -1,0 +1,19 @@
+# Copy to ~/.config/shieldwall/config.toml
+# An empty allowlist treats every listening port as unexpected.
+
+[ports]
+allow = [22]
+
+[ports.proto]
+udp = [53]
+
+[ssh]
+last_n = 20
+fail_broken = 10
+
+[secrets]
+path = "."
+
+[serve]
+host = "127.0.0.1"
+port = 8787

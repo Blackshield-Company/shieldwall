@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shieldwall"
+version = "0.1.0"
+description = "One-screen read-only Linux security dashboard"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "synthalorian", email = "blackshield@mail.grokbot.com"}]
+requires-python = ">=3.11"
+keywords = ["linux", "firewall", "security", "dashboard"]
+classifiers = [
+    "Environment :: Console",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.scripts]
+shieldwall = "shieldwall.cli:console_main"
+
+[project.urls]
+Homepage = "https://example.com/shieldwall"
+
+[tool.setuptools]
+packages = ["shieldwall", "shieldwall.collectors"]
