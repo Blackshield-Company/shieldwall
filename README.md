@@ -1,3 +1,5 @@
+![shieldwall](.github/preview.png)
+
 # Shieldwall
 
 One-screen read-only Linux security dashboard. Five plates — firewall, open ports, SSH logins, pending updates, secret hits — and an armor meter.
