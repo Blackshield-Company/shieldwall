@@ -46,6 +46,10 @@ Plate status is `intact`, `scored`, `broken`, or `unknown`. A missing tool or a 
 
 Collectors are fixed argument lists with a timeout. They do not invoke a shell. Secret output is path and rule id only.
 
+## Web version
+
+Static page in `web/`. Open `web/index.html` and paste the same read-only command output. Nothing is uploaded. See `web/README.md`.
+
 ## Test
 
 ```

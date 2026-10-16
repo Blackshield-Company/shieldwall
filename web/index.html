@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Shieldwall</title>
+<style>
+:root { color-scheme: dark; }
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; }
+body {
+  margin: 0;
+  background: #0c0c0e;
+  color: #e8dcc4;
+  font: 14px/1.45 ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+}
+main { max-width: 52rem; margin: 0 auto; padding: 24px 20px 48px; }
+header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+h1 { margin: 0; color: #8b0000; letter-spacing: 0.14em; font-size: 20px; font-weight: 700; }
+h2 { margin: 0 0 10px; color: #8c9ca8; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+p { margin: 8px 0; }
+.note { color: #e8dcc4; }
+.hint { color: #8c9ca8; margin-top: 0; }
+.meter { margin: 28px 0; }
+.track { height: 16px; border: 1px solid #8c9ca8; background: #0c0c0e; }
+.fill { height: 100%; width: 0; background: #e8dcc4; }
+.field { margin: 18px 0 28px; }
+label { display: block; margin: 12px 0 6px; color: #e8dcc4; }
+input, textarea, button {
+  font: inherit;
+  color: #e8dcc4;
+  background: #0c0c0e;
+  border: 1px solid #8c9ca8;
+  padding: 8px;
+}
+input, textarea { width: 100%; }
+textarea { resize: vertical; min-height: 8rem; }
+button { cursor: pointer; }
+button:hover { color: #8c9ca8; }
+:focus-visible { outline: 2px solid #e8dcc4; outline-offset: 2px; }
+.plate {
+  border: 1px solid #8c9ca8;
+  border-left-width: 4px;
+  border-left-color: #e8dcc4;
+  padding: 14px;
+  margin: 0 0 16px;
+}
+.plate[data-status="intact"] { border-left-color: #8c9ca8; }
+.plate[data-status="scored"] { border-left-color: #e8dcc4; }
+.plate[data-status="broken"] { border-left-color: #8b0000; }
+.plate[data-status="unknown"] { border-left-color: #e8dcc4; }
+.cmd { display: flex; gap: 8px; align-items: center; margin: 0 0 6px; }
+.cmd code { flex: 1; padding: 6px 8px; border: 1px solid #8c9ca8; overflow-wrap: anywhere; }
+.cmd button { flex: 0 0 auto; }
+.status { display: inline-block; margin: 12px 0 0; font-weight: 700; }
+.status[data-status="intact"] { color: #8c9ca8; }
+.status[data-status="scored"], .status[data-status="unknown"] { color: #e8dcc4; }
+.status[data-status="broken"] { color: #e8dcc4; background: #8b0000; padding: 2px 6px; }
+.headline, .detail { margin: 4px 0; }
+.evidence { margin: 8px 0 0; padding-left: 18px; overflow-wrap: anywhere; }
+footer { margin-top: 28px; color: #8c9ca8; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>SHIELDWALL</h1>
+  <p>host: local</p>
+</header>
+<p class="note">Runs in your browser. Nothing leaves this page.</p>
+<noscript><p>This page needs JavaScript to score plates. It still does not send anything anywhere.</p></noscript>
+<section class="meter">
+  <h2>Armor</h2>
+  <div id="meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Armor meter">
+    <div class="track"><div class="fill" id="meter-fill"></div></div>
+  </div>
+  <p id="meter-score">ARMOR 0  bone</p>
+  <p id="meter-phrase">bone / coverage worn</p>
+  <p class="note">Plate coverage, not a security guarantee.</p>
+  <p class="hint">intact 20, scored 10, broken 0, unknown 0. steel only when every plate is intact. blood if any plate is broken. otherwise bone.</p>
+</section>
+<div class="field">
+  <label for="allow">Ports allowlist</label>
+  <input id="allow" type="text" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="22, 443, 53/udp">
+  <p class="hint">Comma-separated, same format as [ports] allow. 22 allows every protocol. 53/udp allows one protocol. An empty allowlist flags every listener.</p>
+</div>
+<section>
+  <article class="plate" id="card-firewall" data-status="unknown">
+    <h2>firewall</h2>
+    <div class="cmd"><code>nft list ruleset</code><button type="button" data-copy="nft list ruleset" aria-label="Copy nft list ruleset">Copy</button></div>
+    <div class="cmd"><code>firewall-cmd --state</code><button type="button" data-copy="firewall-cmd --state" aria-label="Copy firewall-cmd --state">Copy</button></div>
+    <div class="cmd"><code>firewall-cmd --list-all</code><button type="button" data-copy="firewall-cmd --list-all" aria-label="Copy firewall-cmd --list-all">Copy</button></div>
+    <div class="cmd"><code>ufw status</code><button type="button" data-copy="ufw status" aria-label="Copy ufw status">Copy</button></div>
+    <div class="cmd"><code>ufw status verbose</code><button type="button" data-copy="ufw status verbose" aria-label="Copy ufw status verbose">Copy</button></div>
+    <p class="hint">Paste one tool. nft is used when an input policy is present, then firewalld, then ufw. Empty is unknown.</p>
+    <label for="out-firewall">Firewall output</label>
+    <textarea id="out-firewall" spellcheck="false" autocomplete="off" autocapitalize="off" rows="8"></textarea>
+    <p class="status" id="status-firewall" data-status="unknown">[unknown]</p>
+    <p class="headline" id="headline-firewall"></p>
+    <p class="detail" id="detail-firewall"></p>
+    <ul class="evidence" id="evidence-firewall"></ul>
+  </article>
+  <article class="plate" id="card-ports" data-status="unknown">
+    <h2>ports</h2>
+    <div class="cmd"><code>ss -H -tulpn</code><button type="button" data-copy="ss -H -tulpn" aria-label="Copy ss -H -tulpn">Copy</button></div>
+    <p class="hint">Or paste /proc/net/tcp, /proc/net/tcp6, /proc/net/udp, /proc/net/udp6. Empty is unknown.</p>
+    <label for="out-ports">Listening sockets</label>
+    <textarea id="out-ports" spellcheck="false" autocomplete="off" autocapitalize="off" rows="8"></textarea>
+    <p class="status" id="status-ports" data-status="unknown">[unknown]</p>
+    <p class="headline" id="headline-ports"></p>
+    <p class="detail" id="detail-ports"></p>
+    <ul class="evidence" id="evidence-ports"></ul>
+  </article>
+  <article class="plate" id="card-ssh" data-status="unknown">
+    <h2>ssh</h2>
+    <div class="cmd"><code>journalctl -u ssh -o short-iso -n 400 --no-pager</code><button type="button" data-copy="journalctl -u ssh -o short-iso -n 400 --no-pager" aria-label="Copy journalctl -u ssh -o short-iso -n 400 --no-pager">Copy</button></div>
+    <div class="cmd"><code>journalctl -u sshd -o short-iso -n 400 --no-pager</code><button type="button" data-copy="journalctl -u sshd -o short-iso -n 400 --no-pager" aria-label="Copy journalctl -u sshd -o short-iso -n 400 --no-pager">Copy</button></div>
+    <p class="hint">Or paste /var/log/auth.log or /var/log/secure. Usernames are omitted. Last 20 events; 10 failures break the plate. Empty is unknown.</p>
+    <label for="out-ssh">SSH log</label>
+    <textarea id="out-ssh" spellcheck="false" autocomplete="off" autocapitalize="off" rows="8"></textarea>
+    <p class="status" id="status-ssh" data-status="unknown">[unknown]</p>
+    <p class="headline" id="headline-ssh"></p>
+    <p class="detail" id="detail-ssh"></p>
+    <ul class="evidence" id="evidence-ssh"></ul>
+  </article>
+  <article class="plate" id="card-updates" data-status="unknown">
+    <h2>updates</h2>
+    <div class="cmd"><code>apt list --upgradable</code><button type="button" data-copy="apt list --upgradable" aria-label="Copy apt list --upgradable">Copy</button></div>
+    <div class="cmd"><code>dnf check-update</code><button type="button" data-copy="dnf check-update" aria-label="Copy dnf check-update">Copy</button></div>
+    <div class="cmd"><code>checkupdates</code><button type="button" data-copy="checkupdates" aria-label="Copy checkupdates">Copy</button></div>
+    <p class="hint">Paste one command. If checkupdates printed nothing, paste exit: 2. dnf can take a first line exit: 100 or exit: 0. Empty is unknown.</p>
+    <label for="out-updates">Package check</label>
+    <textarea id="out-updates" spellcheck="false" autocomplete="off" autocapitalize="off" rows="8"></textarea>
+    <p class="status" id="status-updates" data-status="unknown">[unknown]</p>
+    <p class="headline" id="headline-updates"></p>
+    <p class="detail" id="detail-updates"></p>
+    <ul class="evidence" id="evidence-updates"></ul>
+  </article>
+  <article class="plate" id="card-secrets" data-status="unknown">
+    <h2>secrets</h2>
+    <div class="cmd"><code>secretsweep scan PATH --format json</code><button type="button" data-copy="secretsweep scan PATH --format json" aria-label="Copy secretsweep scan PATH --format json">Copy</button></div>
+    <p class="hint">Paste one file. Builtin rules match the CLI scanner. Results show rule id and line number only. Matched values stay in the box and are not copied into the result or the JSON. Empty is unknown.</p>
+    <label for="secrets-name">File name</label>
+    <input id="secrets-name" type="text" value="paste" spellcheck="false" autocomplete="off" autocapitalize="off">
+    <label for="out-secrets">File text</label>
+    <textarea id="out-secrets" spellcheck="false" autocomplete="off" autocapitalize="off" rows="8"></textarea>
+    <p class="status" id="status-secrets" data-status="unknown">[unknown]</p>
+    <p class="headline" id="headline-secrets"></p>
+    <p class="detail" id="detail-secrets"></p>
+    <ul class="evidence" id="evidence-secrets"></ul>
+  </article>
+</section>
+<p><button type="button" id="download">Download JSON</button></p>
+<p class="hint">Same shape as python3 -m shieldwall --json. Saved with a Blob in this browser.</p>
+<footer>
+  <p>synthalorian · Apache-2.0</p>
+  <p>Read-only. Nothing on this page changes the machine.</p>
+</footer>
+</main>
+<script src="shieldwall.js"></script>
+<script>
+(function () {
+  var names = ["firewall", "ports", "ssh", "updates", "secrets"];
+  var allow = document.getElementById("allow");
+  var secretsName = document.getElementById("secrets-name");
+
+  function read() {
+    return Shieldwall.evaluate({
+      firewall: document.getElementById("out-firewall").value,
+      ports: document.getElementById("out-ports").value,
+      ssh: document.getElementById("out-ssh").value,
+      updates: document.getElementById("out-updates").value,
+      secrets: document.getElementById("out-secrets").value,
+      allow: allow.value,
+      secretsPath: secretsName.value,
+      host: "local"
+    });
+  }
+
+  function show(report) {
+    var statuses = [];
+    var i;
+    for (i = 0; i < report.plates.length; i++) statuses.push(report.plates[i].status);
+    var phrase = Shieldwall.meterPhrase(report.meter, statuses);
+    document.getElementById("meter-score").textContent = "ARMOR " + report.meter.score + "  " + report.meter.label;
+    document.getElementById("meter-phrase").textContent = phrase;
+    var fill = document.getElementById("meter-fill");
+    fill.style.width = report.meter.score + "%";
+    fill.style.background = Shieldwall.HEX[report.meter.label] || Shieldwall.HEX.bone;
+    var meter = document.getElementById("meter");
+    meter.setAttribute("aria-valuenow", String(report.meter.score));
+    meter.setAttribute("aria-valuetext", report.meter.score + " " + report.meter.label + " " + phrase);
+    for (i = 0; i < report.plates.length; i++) {
+      var plate = report.plates[i];
+      var card = document.getElementById("card-" + plate.name);
+      card.setAttribute("data-status", plate.status);
+      var status = document.getElementById("status-" + plate.name);
+      status.textContent = "[" + plate.status + "]";
+      status.setAttribute("data-status", plate.status);
+      document.getElementById("headline-" + plate.name).textContent = plate.headline;
+      document.getElementById("detail-" + plate.name).textContent = plate.detail;
+      var list = document.getElementById("evidence-" + plate.name);
+      while (list.firstChild) list.removeChild(list.firstChild);
+      var k;
+      for (k = 0; k < plate.evidence.length; k++) {
+        var item = document.createElement("li");
+        item.textContent = plate.evidence[k];
+        list.appendChild(item);
+      }
+    }
+  }
+
+  function refresh() {
+    show(read());
+  }
+
+  document.addEventListener("input", function (event) {
+    if (event.target && event.target.closest && event.target.closest("main")) refresh();
+  });
+
+  document.getElementById("download").addEventListener("click", function () {
+    var blob = new Blob([Shieldwall.formatJson(read())], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "shieldwall.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  function fallbackCopy(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
+
+  var buttons = document.querySelectorAll("[data-copy]");
+  var b;
+  for (b = 0; b < buttons.length; b++) {
+    buttons[b].addEventListener("click", function () {
+      var button = this;
+      var text = button.getAttribute("data-copy");
+      var previous = button.textContent;
+      var done = function () {
+        button.textContent = "Copied";
+        window.setTimeout(function () { button.textContent = previous; }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          fallbackCopy(text);
+          done();
+        });
+      } else {
+        fallbackCopy(text);
+        done();
+      }
+    });
+  }
+
+  refresh();
+})();
+</script>
+</body>
+</html>
