@@ -67,6 +67,8 @@ python3 -m unittest discover -s tests -v
 
 ## Web checklist
 
+Live: https://shieldwall-web.pages.dev
+
 `web/` is a static, browser-only version: paste firewall, `ss`, SSH log, pending-update and config/compose output and get the same five plates plus a fix-it checklist. The rules are a JavaScript port of the Python collectors (`web/src/rules.js`), with a parity test that runs the same inputs through both. Nothing leaves the browser: there is no backend, and the page's Content-Security-Policy sets `connect-src 'none'`. Fonts are bundled.
 
 ```
