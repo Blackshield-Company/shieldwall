@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'none'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Shieldwall: paste your setup, get a hardening checklist</title>
+<meta name="description" content="Free, browser-only Shieldwall checklist. Paste firewall, port, SSH, update and config output; nothing leaves your browser.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><svg class="knight" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 6v9c0 7.5 5.1 13 12 15 6.9-2 12-7.5 12-15V6L16 2z" fill="#16161c" stroke="#C1121F" stroke-width="1.5"/><path d="M10 11h12v3h-4v2h4v3c0 2.5-2.7 5-6 6-3.3-1-6-3.5-6-6v-3h4v-2h-4z" fill="#E4DED2"/><path d="M16 4c3 2 4 4 4 6h-8c0-2 1-4 4-6z" fill="#C1121F"/></svg><span class="wordmark">SHIELDWALL</span></a>
+  <nav><a href="https://github.com/Blackshield-Company/openshield" rel="noopener">OpenShield</a><a href="https://ko-fi.com/synthalorian" rel="noopener">Shop</a><a href="https://github.com/Blackshield-Company/shieldwall" rel="noopener">Source</a></nav>
+</header>
+<main>
+  <section class="intro">
+    <h1>Paste your setup. Get a hardening checklist.</h1>
+    <p>The same five plates as the Shieldwall CLI: firewall, open ports, SSH logins, pending updates and leaked secrets. Paste the command output you have; leave the rest blank.</p>
+    <p class="privacy" id="privacy"><strong>Nothing leaves your browser.</strong> All checks run locally in this page. There is no server, no upload, no analytics, and the page's security policy blocks network requests.</p>
+  </section>
+  <form id="audit" class="grid" autocomplete="off">
+    <label>Firewall <span class="hint">sudo nft list ruleset &middot; sudo ufw status verbose &middot; firewall-cmd --list-all</span>
+      <textarea name="firewall" spellcheck="false" rows="6"></textarea></label>
+    <label>Open ports <span class="hint">ss -tulpn</span>
+      <textarea name="ports" spellcheck="false" rows="6"></textarea></label>
+    <label>Port allowlist <span class="hint">e.g. 22/tcp, 443 &middot; or your config.toml [ports] section</span>
+      <textarea name="allow" spellcheck="false" rows="3"></textarea></label>
+    <label>SSH log <span class="hint">journalctl -u ssh -u sshd -n 200 &middot; /var/log/auth.log</span>
+      <textarea name="ssh" spellcheck="false" rows="6"></textarea></label>
+    <label>Pending updates <span class="hint">apt list --upgradable &middot; dnf check-update &middot; checkupdates</span>
+      <textarea name="updates" spellcheck="false" rows="4"></textarea></label>
+    <label>Config, compose file or .env <span class="hint">scanned for leaked keys; only rule and line are shown</span>
+      <textarea name="secrets" spellcheck="false" rows="6"></textarea></label>
+    <div class="actions">
+      <button type="submit" class="primary">Raise the wall</button>
+      <button type="button" id="sample">Load sample</button>
+      <button type="reset">Clear</button>
+    </div>
+  </form>
+  <section id="result" class="result" hidden aria-live="polite">
+    <div class="meter"><div class="score" id="score"></div><div><div class="phrase" id="phrase"></div><div class="disclaimer" id="disclaimer"></div></div></div>
+    <ol id="plates" class="plates"></ol>
+  </section>
+</main>
+<footer>Shieldwall is open source (Apache-2.0) by Blackshield Company. Checks mirror the CLI's rules; the score is plate coverage, not a security guarantee.</footer>
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

@@ -64,3 +64,15 @@ python3 -m unittest discover -s tests -v
 - SSH covers the last N matching events in the journal tail (or auth log), not a strict 24 hour query. Usernames are omitted; source addresses are shown.
 - The built-in secret scanner is a small rule set and can false-positive. `secretsweep scan <path> --format json` is used when that command is on `PATH`. `.shieldwallignore` is local only.
 - Package-manager checks differ by distro and report `unknown` on lock, timeout, or a missing tool. They never install.
+
+## Web checklist
+
+`web/` is a static, browser-only version: paste firewall, `ss`, SSH log, pending-update and config/compose output and get the same five plates plus a fix-it checklist. The rules are a JavaScript port of the Python collectors (`web/src/rules.js`), with a parity test that runs the same inputs through both. Nothing leaves the browser: there is no backend, and the page's Content-Security-Policy sets `connect-src 'none'`. Fonts are bundled.
+
+```
+cd web
+npm test        # node --test, no dependencies
+npm run build   # static site in web/dist
+```
+
+Open `/#sample` to load a sample setup.
