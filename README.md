@@ -7,7 +7,7 @@ One-screen read-only Linux security dashboard. Five plates — firewall, open po
 This MVP is Python 3 (stdlib only), not the Rust binary sketched in DESIGN.md. It runs as the invoking user. It does not install packages, change firewall rules, or use a setuid helper.
 
 Author: synthalorian  
-Contact: blackshield@mail.grokbot.com  
+Contact: synthalorian@gmail.com  
 License: Apache-2.0
 
 The meter is **plate coverage, not a security guarantee**.
@@ -36,7 +36,7 @@ python3 -m shieldwall serve
 python3 -m shieldwall --config config.example.toml serve --host 127.0.0.1 --port 8787
 ```
 
-`serve` binds to loopback only and refuses any other host. It serves one HTML page plus `GET /api/plates`. Nothing on that screen changes the machine.
+`serve` binds to loopback only and refuses any other host. It also answers only requests whose `Host` header is a loopback name (`localhost`, `127.0.0.1`, `[::1]`), so a web page cannot DNS-rebind its own name to read the dashboard. It serves one HTML page plus `GET /api/plates`. Nothing on that screen changes the machine.
 
 Copy `config.example.toml` to `~/.config/shieldwall/config.toml`. Until `[ports] allow` lists the listeners you expect, every listening port is unexpected and the ports plate is broken.
 

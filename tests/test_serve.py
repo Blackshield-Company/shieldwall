@@ -10,6 +10,7 @@ from shieldwall.serve import (
     LoopbackRefusal,
     bind_host,
     ensure_loopback,
+    host_header_ok,
     is_loopback_host,
     make_server,
     start_server,
@@ -88,3 +89,36 @@ class ServeTests(unittest.TestCase):
             httpd.shutdown()
             httpd.server_close()
             threading.Event().wait(0.05)
+
+
+class HostHeaderTests(unittest.TestCase):
+    def test_host_header_values(self):
+        for ok in (None, "127.0.0.1", "127.0.0.1:8787", "localhost:8787", "LOCALHOST", "[::1]:8787", "[::1]"):
+            self.assertTrue(host_header_ok(ok), ok)
+        for bad in ("", "attacker.example", "attacker.example:8787", "192.0.2.10:80", "[::1]x",
+                    "127.0.0.1:abc", "[2001:db8::1]:80", "::1"):
+            self.assertFalse(host_header_ok(bad), bad)
+
+    def test_rebound_host_is_refused(self):
+        import http.client
+
+        httpd = start_server("127.0.0.1", 0, lambda: {"host": "box", "plates": []})
+        try:
+            port = httpd.server_address[1]
+            for path in ("/api/plates", "/"):
+                conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+                conn.request("GET", path, headers={"Host": "attacker.example:%d" % port})
+                resp = conn.getresponse()
+                body = resp.read()
+                conn.close()
+                self.assertEqual(resp.status, 421, path)
+                self.assertNotIn(b"plates", body)
+            conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            conn.request("GET", "/api/plates", headers={"Host": "localhost:%d" % port})
+            resp = conn.getresponse()
+            self.assertEqual(resp.status, 200)
+            resp.read()
+            conn.close()
+        finally:
+            httpd.shutdown()
+            httpd.server_close()

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "One-screen read-only Linux security dashboard"
 readme = "README.md"
 license = {text = "Apache-2.0"}
-authors = [{name = "synthalorian", email = "blackshield@mail.grokbot.com"}]
+authors = [{name = "synthalorian", email = "synthalorian@gmail.com"}]
 requires-python = ">=3.11"
 keywords = ["linux", "firewall", "security", "dashboard"]
 classifiers = [
@@ -25,7 +25,7 @@ classifiers = [
 shieldwall = "shieldwall.cli:console_main"
 
 [project.urls]
-Homepage = "https://example.com/shieldwall"
+Homepage = "https://github.com/Blackshield-Company/shieldwall"
 
 [tool.setuptools]
 packages = ["shieldwall", "shieldwall.collectors"]

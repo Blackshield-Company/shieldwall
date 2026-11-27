@@ -40,6 +40,35 @@ def bind_host(host: str) -> str:
     return text
 
 
+def host_header_ok(value) -> bool:
+    """True if a request's Host header names a loopback host (any port).
+
+    A page on another site can DNS-rebind its own name to 127.0.0.1 and read
+    this server; its requests still carry that foreign name in Host, so only
+    loopback names are answered. A request without a Host header (HTTP/1.0
+    tools) is allowed: browsers always send one.
+    """
+    if value is None:
+        return True
+    text = value.strip()
+    if not text:
+        return False
+    if text.startswith("["):
+        end = text.find("]")
+        if end < 0:
+            return False
+        name, rest = text[1:end], text[end + 1:]
+        if rest and not (rest.startswith(":") and rest[1:].isdigit()):
+            return False
+    else:
+        name, sep, port = text.rpartition(":")
+        if not sep:
+            name = text
+        elif not port.isdigit() or ":" in name:
+            return False
+    return is_loopback_host(name)
+
+
 def format_url(host: str, port: int) -> str:
     if ":" in host:
         return f"http://[{host}]:{port}/"
@@ -146,6 +175,9 @@ def make_handler(provider):
             return
 
         def do_GET(self) -> None:
+            if not host_header_ok(self.headers.get("Host")):
+                self.send_error(421, "host not allowed")
+                return
             path = urlparse(self.path).path
             try:
                 report = provider()
