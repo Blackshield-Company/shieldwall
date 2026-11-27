@@ -7,7 +7,7 @@ One-screen read-only Linux security dashboard. Five plates — firewall, open po
 This MVP is Python 3 (stdlib only), not the Rust binary sketched in DESIGN.md. It runs as the invoking user. It does not install packages, change firewall rules, or use a setuid helper.
 
 Author: synthalorian  
-Contact: blackshield@mail.grokbot.com  
+Contact: synthalorian@gmail.com  
 License: Apache-2.0
 
 The meter is **plate coverage, not a security guarantee**.
